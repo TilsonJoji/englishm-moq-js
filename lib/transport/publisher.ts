@@ -156,6 +156,8 @@ export class SubscribeRecv {
 	#objects: Objects
 	#id: bigint
 	#trackId: bigint
+	#subscriberPriority: number
+	groupOrder: Control.GroupOrder
 
 	readonly namespace: string
 	readonly track: string
@@ -170,6 +172,8 @@ export class SubscribeRecv {
 		this.#trackId = msg.trackId
 		this.namespace = msg.namespace
 		this.track = msg.name
+		this.#subscriberPriority = msg.subscriber_priority
+		this.groupOrder = msg.group_order
 	}
 
 	// Acknowledge the subscription as valid.
