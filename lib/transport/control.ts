@@ -65,10 +65,18 @@ export interface Subscribe {
 	trackId: bigint
 	namespace: string
 	name: string
+	subscriber_priority: number
+	group_order: GroupOrder
 
 	location: Location
 
 	params?: Parameters
+}
+
+export enum GroupOrder {
+	Publisher = 0x0,
+	Ascending = 0x1,
+	Descending = 0x2
 }
 
 export type Location = LatestGroup | LatestObject | AbsoluteStart | AbsoluteRange
@@ -101,6 +109,7 @@ export interface SubscribeOk {
 	kind: Msg.SubscribeOk
 	id: bigint
 	expires: bigint
+	group_order: GroupOrder
 	latest?: [number, number]
 }
 
@@ -261,8 +270,24 @@ export class Decoder {
 			trackId: await this.r.u62(),
 			namespace: await this.r.string(),
 			name: await this.r.string(),
+			subscriber_priority: await this.r.u8(),
+			group_order: await this.decodeGroupOrder(),
 			location: await this.location(),
 			params: await this.parameters(),
+		}
+	}
+
+	private async decodeGroupOrder(): Promise<GroupOrder> {
+		const orderCode = await this.r.u8()
+		switch (orderCode) {
+			case 0:
+				return GroupOrder.Publisher
+			case 1:
+				return GroupOrder.Ascending
+			case 2:
+				return GroupOrder.Descending
+			default:
+				throw new Error(`Invalid GroupOrder value: ${orderCode}`)
 		}
 	}
 
@@ -320,6 +345,7 @@ export class Decoder {
 		const id = await this.r.u62()
 		const expires = await this.r.u62()
 
+		const group_order = await this.decodeGroupOrder()
 		let latest: [number, number] | undefined
 
 		const flag = await this.r.u8()
@@ -333,6 +359,7 @@ export class Decoder {
 			kind: Msg.SubscribeOk,
 			id,
 			expires,
+			group_order,
 			latest,
 		}
 	}
@@ -446,8 +473,26 @@ export class Encoder {
 		await this.w.u62(s.trackId)
 		await this.w.string(s.namespace)
 		await this.w.string(s.name)
+		await this.w.u8(s.subscriber_priority ?? 127)
+		await this.encodeGroupOrder(s.group_order ?? GroupOrder.Publisher)
 		await this.location(s.location)
 		await this.parameters(s.params)
+	}
+
+	private async encodeGroupOrder(order: GroupOrder) {
+		switch (order) {
+			case GroupOrder.Publisher:
+				await this.w.u8(GroupOrder.Publisher)
+				break
+			case GroupOrder.Ascending:
+				await this.w.u8(GroupOrder.Ascending)
+				break
+			case GroupOrder.Descending:
+				await this.w.u8(GroupOrder.Descending)
+				break
+			default:
+				throw new Error("Invalid GroupOrder value")
+		}
 	}
 
 	private async location(l: Location) {
@@ -491,6 +536,7 @@ export class Encoder {
 		await this.w.u62(s.id)
 		await this.w.u62(s.expires)
 
+		await this.encodeGroupOrder(s.group_order)
 		if (s.latest !== undefined) {
 			await this.w.u8(1)
 			await this.w.u53(s.latest[0])

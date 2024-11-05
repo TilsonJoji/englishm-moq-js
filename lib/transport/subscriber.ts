@@ -72,6 +72,8 @@ export class Subscriber {
 			trackId: id,
 			namespace,
 			name: track,
+			subscriber_priority: 127, // default to mid value, see: https://github.com/moq-wg/moq-transport/issues/504
+			group_order: Control.GroupOrder.Publisher,
 			location: {
 				mode: "latest_group",
 			},
