@@ -18,7 +18,7 @@ export interface TrackHeader {
 	type: StreamType.Track
 	sub: bigint
 	track: bigint
-	priority: number // VarInt with a u32 maximum value
+	publisher_priority: number // VarInt with a u32 maximum value
 }
 
 export interface TrackChunk {
@@ -32,7 +32,7 @@ export interface GroupHeader {
 	sub: bigint
 	track: bigint
 	group: number // The group sequence, as a number because 2^53 is enough.
-	priority: number // VarInt with a u32 maximum value
+	publisher_priority: number // VarInt with a u32 maximum value
 }
 
 export interface GroupChunk {
@@ -46,7 +46,7 @@ export interface ObjectHeader {
 	track: bigint
 	group: number
 	object: number
-	priority: number
+	publisher_priority: number
 	status: number
 }
 
@@ -82,17 +82,17 @@ export class Objects {
 		if (h.type == StreamType.Object) {
 			await w.u53(h.group)
 			await w.u53(h.object)
-			await w.u8(h.priority)
+			await w.u8(h.publisher_priority)
 			await w.u53(h.status)
 
 			res = new ObjectWriter(h, w) as WriterType<T>
 		} else if (h.type === StreamType.Group) {
 			await w.u53(h.group)
-			await w.u8(h.priority)
+			await w.u8(h.publisher_priority)
 
 			res = new GroupWriter(h, w) as WriterType<T>
 		} else if (h.type === StreamType.Track) {
-			await w.u8(h.priority)
+			await w.u8(h.publisher_priority)
 
 			res = new TrackWriter(h, w) as WriterType<T>
 		} else {

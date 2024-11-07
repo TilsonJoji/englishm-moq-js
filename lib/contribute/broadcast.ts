@@ -192,7 +192,7 @@ export class Broadcast {
 		// Create a new stream for each segment.
 		const stream = await subscriber.group({
 			group: segment.id,
-			priority: 0, // TODO
+			priority: 127, // TODO,default to mid value, see: https://github.com/moq-wg/moq-transport/issues/504
 		})
 
 		let object = 0
