@@ -121,7 +121,7 @@ export class Objects {
 				type,
 				sub: await r.u62(),
 				track: await r.u62(),
-				priority: await r.u8(),
+				publisher_priority: await r.u8(),
 			}
 
 			res = new TrackReader(h, r)
@@ -131,7 +131,7 @@ export class Objects {
 				sub: await r.u62(),
 				track: await r.u62(),
 				group: await r.u53(),
-				priority: await r.u8(),
+				publisher_priority: await r.u8(),
 			}
 			res = new GroupReader(h, r)
 		} else if (type == StreamType.Object) {
@@ -142,7 +142,7 @@ export class Objects {
 				group: await r.u53(),
 				object: await r.u53(),
 				status: await r.u53(),
-				priority: await r.u8(),
+				publisher_priority: await r.u8(),
 			}
 
 			res = new ObjectReader(h, r)
