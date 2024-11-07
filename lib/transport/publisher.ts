@@ -214,7 +214,7 @@ export class SubscribeRecv {
 			type: StreamType.Track,
 			sub: this.#id,
 			track: this.#trackId,
-			priority: props?.priority ?? 0,
+			publisher_priority: props?.priority ?? 127,
 		})
 	}
 
@@ -225,7 +225,7 @@ export class SubscribeRecv {
 			sub: this.#id,
 			track: this.#trackId,
 			group: props.group,
-			priority: props.priority ?? 0,
+			publisher_priority: props.priority ?? 127,
 		})
 	}
 
@@ -237,7 +237,7 @@ export class SubscribeRecv {
 			track: this.#trackId,
 			group: props.group,
 			object: props.object,
-			priority: props.priority ?? 0,
+			publisher_priority: props.priority ?? 127,
 			status: 0,
 		})
 	}
